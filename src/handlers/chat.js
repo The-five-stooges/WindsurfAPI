@@ -2923,7 +2923,7 @@ function streamResponse(id, created, model, modelKey, provider, messages, cascad
             }
           }
           if (!acct) {
-            acct = await waitForAccountFn(tried, abortController.signal, QUEUE_MAX_WAIT_MS, modelKey);
+            acct = await waitForAccountFn(tried, abortController.signal, QUEUE_MAX_WAIT_MS, modelKey, callerKey);
             if (!acct) {
               // Without an explicit lastErr here, the final retry-failed log
               // ends up printing an empty message and the SSE error event
