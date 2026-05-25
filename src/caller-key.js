@@ -19,8 +19,8 @@ function sha256Hex(value) {
 // pinned to (apiKey, user/session). Returns '' when no usable signal.
 export function extractBodyCallerSubKey(body) {
   if (!body || typeof body !== 'object') return '';
+  if (typeof body.user === 'string') return sha256Hex(body.user).slice(0, 16);
   const candidates = [
-    typeof body.user === 'string' ? body.user : '',
     typeof body?.metadata?.conversation_id === 'string' ? body.metadata.conversation_id : '',
     typeof body.conversation === 'string' ? body.conversation : '',
     typeof body.previous_response_id === 'string' ? body.previous_response_id : '',
