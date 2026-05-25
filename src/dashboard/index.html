@@ -4059,7 +4059,7 @@ docker compose up -d --force-recreate</pre>
       // Use fetch + blob so we can pass the X-Dashboard-Password header
       // (raw <a download> can't set headers).
       const resp = await fetch(url, {
-        headers: { 'X-Dashboard-Password': sessionStorage.getItem('dashboard_password') || '' },
+        headers: { 'X-Dashboard-Password': this.password || '' },
       });
       if (!resp.ok) {
         this.toast(I18n.t('toast.exportFailed') + ': HTTP ' + resp.status, 'error');
