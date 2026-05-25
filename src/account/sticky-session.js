@@ -35,6 +35,7 @@
  */
 
 import { isExperimentalEnabled } from '../runtime-config.js';
+import { log } from '../config.js';
 
 const ENABLED = process.env.STICKY_SESSION_ENABLED === '1';
 
@@ -109,6 +110,7 @@ export function getStickyBinding(callerKey, modelKey = '') {
   const binding = _bindings.get(key);
   if (!binding) {
     _stats.misses++;
+    if (callerKey.includes(':user:')) log.info('[sticky] MISS key=%s', key);
     return null;
   }
 
@@ -121,6 +123,7 @@ export function getStickyBinding(callerKey, modelKey = '') {
 
   binding.lastAccess = now;
   _stats.hits++;
+  if (callerKey.includes(':user:')) log.info('[sticky] HIT key=%s account=%s', key, binding.accountId);
   return { accountId: binding.accountId, apiKey: binding.apiKey };
 }
 
@@ -163,7 +166,10 @@ export function setStickyBinding(callerKey, modelKey, accountId, apiKey) {
     lastAccess: now,
   });
 
-  if (!existing) _stats.creates++;
+  if (!existing) {
+    _stats.creates++;
+    if (callerKey.includes(':user:')) log.info('[sticky] SET key=%s account=%s', key, accountId);
+  }
 }
 
 /**
@@ -175,7 +181,9 @@ export function setStickyBinding(callerKey, modelKey, accountId, apiKey) {
  */
 export function clearStickyBinding(callerKey, modelKey = '') {
   if (!ENABLED || !callerKey) return;
-  _bindings.delete(bindingKey(callerKey, modelKey));
+  const key = bindingKey(callerKey, modelKey);
+  if (_bindings.has(key) && callerKey.includes(':user:')) log.info('[sticky] CLEAR key=%s', key);
+  _bindings.delete(key);
 }
 
 /**
