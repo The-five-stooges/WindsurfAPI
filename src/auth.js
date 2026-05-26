@@ -12,6 +12,7 @@
 
 import { createHash, randomUUID, timingSafeEqual } from 'crypto';
 import { isStickyEnabled, getStickyBinding, setStickyBinding, clearStickyBinding } from './account/sticky-session.js';
+import { isExperimentalEnabled } from './runtime-config.js';
 import { readFileSync, writeFileSync, existsSync, renameSync, unlinkSync, readdirSync } from 'fs';
 import { config, log } from './config.js';
 import { getEffectiveProxy } from './dashboard/proxy-config.js';
@@ -654,8 +655,13 @@ export function getApiKey(excludeKeys = [], modelKey = null, callerKey = null) {
           }
         }
       }
-      // Bound account is no longer usable — clear it so the next call
-      // falls through to normal selection instead of looping.
+      // Bound account is no longer usable
+      if (isExperimentalEnabled('stickyNoFallback')) {
+        log.info('[sticky] NO-FALLBACK callerKey=%s model=%s — bound account unavailable, refusing to rotate',
+          (callerKey || '').slice(0, 50), modelKey || '(none)');
+        return null;
+      }
+      // Clear it so the next call falls through to normal selection instead of looping.
       clearStickyBinding(callerKey, modelKey);
     }
   } else {

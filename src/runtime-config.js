@@ -47,6 +47,12 @@ const DEFAULTS = {
     // Default OFF to preserve per-model isolation (avoids routing
     // requests through an account that may not entitle that model).
     stickyBindByUserOnly: false,
+    // When enabled, a sticky-bound account that fails (rate_limit,
+    // upstream_error, model_not_available) does NOT trigger account
+    // rotation. The request fails back to the client immediately
+    // instead of burning through other accounts in the pool.
+    // Requires STICKY_SESSION_ENABLED=1. Default OFF.
+    stickyNoFallback: false,
   },
   // v2.0.67 (#112) — Tunables for the quiet-window auto-updater.
   // Not under `experimental` because they're not boolean flags.
